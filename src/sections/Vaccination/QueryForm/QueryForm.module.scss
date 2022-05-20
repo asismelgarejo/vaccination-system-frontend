@@ -1,0 +1,25 @@
+
+.QueryForm {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  column-gap: 5px;
+  background-color: #EEEDF0;
+  // margin-top: 50px;
+  &Background {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2em;
+    background-color: white;
+    & .MinsaLogo {
+      width: 200px;
+    }
+    & .CarnetDeVacunacion {
+      width: 250px;
+    }
+  }
+  &Form {
+    background-color: white;
+    padding: 1em 4em 2em
+  }
+}

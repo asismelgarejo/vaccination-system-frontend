@@ -1,0 +1,1 @@
+export { RegisterVaccine } from "./RegisterVaccine";

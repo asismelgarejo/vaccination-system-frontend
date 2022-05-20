@@ -1,0 +1,1 @@
+export { VaccinationCard } from "./VaccinationCard";

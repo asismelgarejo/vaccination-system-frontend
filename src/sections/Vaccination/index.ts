@@ -1,0 +1,1 @@
+export { Vaccination } from "./Vaccination";
