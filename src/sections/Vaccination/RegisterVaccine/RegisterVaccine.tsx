@@ -14,44 +14,29 @@ import {
   TextFieldProps,
   Typography,
 } from "@mui/material";
+import { format, differenceInCalendarYears } from "date-fns";
+import Swal from "sweetalert2";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import esLocale from "date-fns/locale/es";
 import { Controller, useForm } from "react-hook-form";
 import SaveIcon from "@mui/icons-material/Save";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTabsetter } from "../../../contexts/Tabsetter.context";
+import { IMaskInput } from "react-imask";
+import React from "react";
+import {
+  DOSES,
+  RISK_FACTORS,
+  USER,
+  VACCINATION_CENTERS,
+} from "../../../mockups/data";
+import { FAKE_SERVICE } from "../../../mockups/service";
+import { RULES } from "../../../toolbox/constants/rules";
 
-// MOCKUP
-const VaccinationCenters = [{ label: "Hospital Regional de Huacho" }];
 const StyledTextField = (props: TextFieldProps) => (
   <TextField {...props} size="small" fullWidth />
 );
-
-const FAKE_SERVICE = () => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      resolve("success");
-    }, 1000);
-  });
-};
-
-const RULES = {
-  required: {
-    value: true,
-    message: "Debe completar el campo",
-  },
-};
-
-const USER = {
-  dni: "75958725",
-  frLastname: "Melgarejo",
-  mrLastname: "Lopez",
-  names: "Asis",
-  gender: { id: "1", name: "M" },
-  birthday: new Date(2001, 1, 16),
-  address: "Santa Catalina Barranca",
-};
 
 const fieldsetStyles = {
   display: "grid",
@@ -64,6 +49,30 @@ const fieldsetStyles = {
   padding: "1em",
   position: "relative",
 };
+interface CustomProps {
+  onChange: (event: { target: { name: string; value: string } }) => void;
+  name: string;
+}
+const TextMaskCustom = React.forwardRef<HTMLElement, CustomProps>(
+  (props, ref: any) => {
+    const { onChange, ...other } = props;
+    return (
+      <IMaskInput
+        {...other}
+        mask="#00 000 000"
+        definitions={{
+          "#": /[1-9]/,
+        }}
+        inputRef={ref}
+        onAccept={(value: any) =>
+          onChange({ target: { name: props.name, value } })
+        }
+        overwrite
+      />
+    );
+  }
+);
+
 export const RegisterVaccine = () => {
   const [loading, setLoading] = useState(false);
   const { setTabIndex } = useTabsetter();
@@ -71,22 +80,30 @@ export const RegisterVaccine = () => {
     handleSubmit,
     control,
     setValue,
+    getValues,
     formState: { errors },
   } = useForm({
     defaultValues: {
       cellphone: "",
-      dose: null,
+      dose: DOSES[0],
       fcDose: new Date(),
-      vc: {},
-      riskFactors: [null],
+      vc: null,
+      riskFactors: ["1"],
     },
   });
   const successSumit = async (data: any) => {
     setLoading(true);
     await FAKE_SERVICE();
     setLoading(false);
-    alert("Datos guardados exitosamente!");
-    setTabIndex(1);
+    console.log("data", data);
+    Swal.fire({
+      title: "Datos guardados exitosamente!",
+      icon: "success",
+      confirmButtonText: "Aceptar",
+      preConfirm() {
+        setTabIndex(1);
+      },
+    });
   };
 
   const onSubmit = handleSubmit(
@@ -95,6 +112,10 @@ export const RegisterVaccine = () => {
       console.log(">>data", data);
     }
   );
+  useEffect(() => {
+    const dose = DOSES.find((dose) => !USER.doses.includes(dose.id));
+    setValue("dose", dose as { id: string; name: string });
+  }, [setValue]);
   return (
     <Box
       component="form"
@@ -118,40 +139,62 @@ export const RegisterVaccine = () => {
         <Box sx={{ gridColumn: "1 / 2" }}>
           <FormLabel component="p">DNI</FormLabel>
           <StyledTextField
-            value={USER.dni}
-            inputProps={{ readonly: true, disable: true }}
+            defaultValue={USER.dni}
+            InputProps={{
+              readOnly: true,
+            }}
           />
         </Box>
         <Box sx={{ gridColumn: "1 / span 2" }}>
           <FormLabel component="p">AP. Paterno</FormLabel>
           <StyledTextField
-            value={USER.frLastname}
-            inputProps={{ readonly: true, disable: true }}
+            defaultValue={USER.frLastname}
+            InputProps={{
+              readOnly: true,
+            }}
           />
         </Box>
         <Box sx={{ gridColumn: "3 / span 2" }}>
           <FormLabel component="p">AP. Materno</FormLabel>
           <StyledTextField
-            value={USER.mrLastname}
-            inputProps={{ readonly: true, disable: true }}
+            defaultValue={USER.mrLastname}
+            InputProps={{
+              readOnly: true,
+            }}
           />
         </Box>
         <Box sx={{ gridColumn: "5 / span 2" }}>
           <FormLabel component="p">Nombres</FormLabel>
           <StyledTextField
-            value={USER.names}
-            inputProps={{ readonly: true, disable: true }}
+            defaultValue={USER.names}
+            InputProps={{
+              readOnly: true,
+            }}
           />
         </Box>
         <Box sx={{ gridColumn: "1 / span 2" }}>
           <FormLabel component="p">Sexo</FormLabel>
           <RadioGroup row>
             <FormControlLabel
-              control={<Radio checked={USER.gender.name === "M"} />}
+              control={
+                <Radio
+                  checked={USER.gender.name === "M"}
+                  inputProps={{
+                    readOnly: true,
+                  }}
+                />
+              }
               label="Masculino"
             />
             <FormControlLabel
-              control={<Radio checked={USER.gender.name === "F"} />}
+              control={
+                <Radio
+                  checked={USER.gender.name === "F"}
+                  inputProps={{
+                    readOnly: true,
+                  }}
+                />
+              }
               label="Femenino"
             />
           </RadioGroup>
@@ -159,28 +202,23 @@ export const RegisterVaccine = () => {
         <Box sx={{ gridColumn: "3 / span 2" }}>
           <FormLabel component="p">Edad</FormLabel>
           <StyledTextField
-            value={`${USER.birthday.toLocaleString()} años`}
-            inputProps={{ readonly: true }}
+            defaultValue={`${differenceInCalendarYears(
+              new Date(),
+              USER.birthday
+            )} años`}
+            InputProps={{
+              readOnly: true,
+            }}
           />
         </Box>
         <Box sx={{ gridColumn: "5 / span 2" }}>
           <FormLabel component="p">Fecha de nacimiento</FormLabel>
-          <LocalizationProvider dateAdapter={AdapterDateFns} locale={esLocale}>
-            <DatePicker
-              openTo="year"
-              views={["year", "month", "day"]}
-              value={USER.birthday}
-              onChange={() => {
-                // setValue("birthday", newValue as Date);
-              }}
-              renderInput={(params) => (
-                <StyledTextField
-                  {...params}
-                  inputProps={{ readonly: true, disable: true }}
-                />
-              )}
-            />
-          </LocalizationProvider>
+          <StyledTextField
+            defaultValue={format(USER.birthday, "dd/MM/yyyy")}
+            InputProps={{
+              readOnly: true,
+            }}
+          />
         </Box>
         <Box sx={{ gridColumn: "1 / span 2" }}>
           <FormLabel component="p">Celular</FormLabel>
@@ -190,8 +228,14 @@ export const RegisterVaccine = () => {
             name="cellphone"
             render={({ field: { onChange, value } }) => (
               <StyledTextField
-                onChange={onChange}
                 value={value}
+                onChange={onChange}
+                autoFocus
+                name="textmask"
+                id="formatted-text-mask-input"
+                InputProps={{
+                  inputComponent: TextMaskCustom as any,
+                }}
                 error={Boolean(errors["cellphone"])}
               />
             )}
@@ -200,8 +244,10 @@ export const RegisterVaccine = () => {
         <Box sx={{ gridColumn: "3 / -1" }}>
           <FormLabel component="p">Dirección</FormLabel>
           <StyledTextField
-            value={USER.address}
-            inputProps={{ readonly: true, disable: true }}
+            defaultValue={USER.address}
+            InputProps={{
+              readOnly: true,
+            }}
           />
         </Box>
       </Box>
@@ -228,19 +274,31 @@ export const RegisterVaccine = () => {
           <FormLabel component="p">Dosis</FormLabel>
           <Controller
             control={control}
-            // rules={RULES}
+            rules={RULES}
             name="dose"
             render={({ field: { onChange, value } }) => (
               <StyledTextField
                 inputProps={{ readonly: true, disable: true }}
                 select
-                onChange={onChange}
-                value={value}
+                onChange={(event) => {
+                  const ID = event?.target?.value ?? null;
+                  const selectedOpt = ID
+                    ? DOSES.find((opt) => opt.id === ID)
+                    : DOSES[0];
+                  setValue("dose", selectedOpt as { id: string; name: string });
+                }}
+                value={value.id}
                 error={Boolean(errors["dose"])}
               >
-                <MenuItem value={10}>Ten</MenuItem>
-                <MenuItem value={20}>Twenty</MenuItem>
-                <MenuItem value={30}>Thirty</MenuItem>
+                {DOSES.map((dose) => (
+                  <MenuItem
+                    key={dose.id}
+                    value={dose.id}
+                    disabled={USER.doses.includes(dose.id)}
+                  >
+                    {dose.name}
+                  </MenuItem>
+                ))}
               </StyledTextField>
             )}
           />
@@ -249,7 +307,6 @@ export const RegisterVaccine = () => {
           <FormLabel component="p">Fecha dosis</FormLabel>
           <Controller
             control={control}
-            // rules={RULES}
             name="fcDose"
             render={({ field: { onChange, value } }) => (
               <LocalizationProvider
@@ -257,11 +314,9 @@ export const RegisterVaccine = () => {
                 locale={esLocale}
               >
                 <DatePicker
-                  openTo="year"
-                  views={["year", "month", "day"]}
-                  value={new Date()}
+                  value={value}
                   onChange={(newValue) => {
-                    // setValue("birthday", newValue as Date);
+                    setValue("fcDose", newValue as Date);
                   }}
                   renderInput={(params) => (
                     <StyledTextField
@@ -280,19 +335,19 @@ export const RegisterVaccine = () => {
           <FormLabel component="p">Centro de vacunación</FormLabel>
           <Controller
             control={control}
-            // rules={RULES}
+            rules={RULES}
             name="vc"
             render={({ field: { onChange, value } }) => (
               <Autocomplete
                 disablePortal
-                options={VaccinationCenters}
+                value={value}
+                getOptionLabel={(v_c) => v_c.name}
+                options={VACCINATION_CENTERS}
+                onChange={(e, option) => {
+                  setValue("vc", option as any);
+                }}
                 renderInput={(params) => (
-                  <StyledTextField
-                    {...params}
-                    // onChange={onChange}
-                    value={value}
-                    // error={Boolean(errors["vc"])}
-                  />
+                  <StyledTextField {...params} error={Boolean(errors["vc"])} />
                 )}
               />
             )}
@@ -302,22 +357,29 @@ export const RegisterVaccine = () => {
           <FormLabel component="p">Factor de riesgo</FormLabel>
           <Controller
             control={control}
-            // rules={RULES}
+            rules={RULES}
             name="riskFactors"
             render={({ field: { onChange, value } }) => (
               <FormGroup aria-label="position" row>
-                <FormControlLabel
-                  value="end"
-                  control={<Checkbox />}
-                  label="Normal"
-                  labelPlacement="end"
-                />
-                <FormControlLabel
-                  value="end"
-                  control={<Checkbox />}
-                  label="80 +"
-                  labelPlacement="end"
-                />
+                {RISK_FACTORS.map((r_f) => (
+                  <FormControlLabel
+                    checked={value.includes(r_f.id)}
+                    key={r_f.id}
+                    control={<Checkbox />}
+                    label={r_f.name}
+                    onChange={(event: any) => {
+                      let rsfs = getValues("riskFactors");
+                      const checked = event.target!.checked;
+                      if (!checked) {
+                        rsfs = rsfs.filter((idrf) => idrf !== r_f.id);
+                      } else {
+                        rsfs.push(r_f.id);
+                      }
+                      setValue("riskFactors", rsfs);
+                    }}
+                    labelPlacement="end"
+                  />
+                ))}
               </FormGroup>
             )}
           />

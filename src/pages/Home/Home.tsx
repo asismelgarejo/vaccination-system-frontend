@@ -5,14 +5,22 @@ import { CustomTabs } from "../../components/CustomTabs";
 import { Vaccination } from "../../sections/Vaccination";
 import { Report } from "../../sections/Report";
 import { MainLayout } from "../../layouts/MainLayout";
+import { useUserLogged } from "../../contexts/UserLogged.context";
 const TABS = [
   { label: "Vacunación", icon: <VaccinesIcon /> },
   { label: "Reporte", icon: <SummarizeIcon /> },
 ];
 export const Home = () => {
+  const { userLogged } = useUserLogged();
+  const isAutorized = userLogged !== "";
+
   return (
     <MainLayout>
-      <CustomTabs tabs={TABS} content={[<Vaccination />, <Report />]} />
+      <CustomTabs
+        disabledTab={!isAutorized ? 1 : null}
+        tabs={TABS}
+        content={[<Vaccination isAutorized={isAutorized} />, <Report />]}
+      />
     </MainLayout>
   );
 };

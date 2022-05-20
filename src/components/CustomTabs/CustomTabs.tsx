@@ -47,6 +47,7 @@ interface ITab {
 }
 interface ICustomTabsProps {
   tabs: ITab[];
+  disabledTab?: number | null;
   content: React.ReactNode[];
 }
 
@@ -60,17 +61,14 @@ export const CustomTabs: FC<ICustomTabsProps> = (props) => {
   return (
     <Box sx={{ width: "100%" }}>
       <Box>
-        <StyledTabs
-          value={tabIndex}
-          onChange={handleChange}
-          aria-label="styled tabs example"
-        >
+        <StyledTabs value={tabIndex} onChange={handleChange}>
           {props.tabs.map(({ label, icon }, index) => (
             <StyledTab
               label={label}
               iconPosition="start"
               icon={icon}
               key={index}
+              disabled={props?.disabledTab === index}
             />
           ))}
           <span

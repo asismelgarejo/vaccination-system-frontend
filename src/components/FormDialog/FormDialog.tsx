@@ -6,7 +6,11 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import { Controller, useForm } from "react-hook-form";
-import { Stack } from "@mui/material";
+import { CircularProgress, Collapse, Stack } from "@mui/material";
+import { RULES } from "../../toolbox/constants/rules";
+import { FAKE_SERVICE } from "../../mockups/service";
+import { CustomAlerts } from "../CustomAlerts";
+import { useUserLogged } from "../../contexts/UserLogged.context";
 
 export interface ObjFormDialog {
   showDialog(): void;
@@ -20,13 +24,27 @@ interface IFormDialogProps {
 export const FormDialog: React.FC<IFormDialogProps> = React.forwardRef(
   (props, ref) => {
     const [open, setOpen] = React.useState(false);
-
+    const [error, setError] = React.useState({ isError: false, message: "" });
+    const [loading, setLoading] = React.useState(false);
+    const { setUserLogged } = useUserLogged();
     const handleClose = () => {
       setOpen(false);
     };
 
-    const successSumit = (data: any) => {
+    const successSumit = async (data: any) => {
       console.log(">>data", data);
+      setLoading(true);
+      const response = await FAKE_SERVICE("success");
+      if (response === "success") {
+        setLoading(false);
+        setValue("password", "");
+        setValue("email", "");
+        setUserLogged("Asis Melgarejo");
+        setOpen(false);
+      } else {
+        setLoading(false);
+        setError({ isError: true, message: "Datos incorrectos" });
+      }
     };
 
     React.useImperativeHandle(ref, () => ({
@@ -41,7 +59,8 @@ export const FormDialog: React.FC<IFormDialogProps> = React.forwardRef(
     const {
       handleSubmit,
       control,
-      formState: { errors },
+      setValue,
+      formState: { errors, isDirty },
     } = useForm({
       defaultValues: { email: "", password: "" },
     });
@@ -49,15 +68,27 @@ export const FormDialog: React.FC<IFormDialogProps> = React.forwardRef(
       (data) => successSumit(data),
       () => {}
     );
+
     return (
       <Dialog open={open} onClose={handleClose}>
-        <DialogTitle sx={{paddingBottom: "0"}}>Iniciar sesión</DialogTitle>
+        <DialogTitle sx={{ paddingBottom: "0" }}>Iniciar sesión</DialogTitle>
         <DialogContent>
-          <br/>
+          <Collapse in={error.isError}>
+            <CustomAlerts
+              severity="error"
+              closeAction={() => {
+                setError({ isError: false, message: "" });
+              }}
+              message={error.message}
+            />
+          </Collapse>
+          <br />
+          <br />
           <Stack onSubmit={onSubmit} component="form" spacing={2}>
             <Controller
               control={control}
               name="email"
+              rules={RULES}
               render={({ field: { onChange, value } }) => (
                 <TextField
                   onChange={onChange}
@@ -66,7 +97,6 @@ export const FormDialog: React.FC<IFormDialogProps> = React.forwardRef(
                   size="small"
                   id="email"
                   fullWidth
-                  placeholder="Email"
                   label="Email"
                 />
               )}
@@ -74,6 +104,7 @@ export const FormDialog: React.FC<IFormDialogProps> = React.forwardRef(
             <Controller
               control={control}
               name="password"
+              rules={RULES}
               render={({ field: { onChange, value } }) => (
                 <TextField
                   onChange={onChange}
@@ -82,8 +113,8 @@ export const FormDialog: React.FC<IFormDialogProps> = React.forwardRef(
                   size="small"
                   id="password"
                   fullWidth
-                  placeholder="Password"
-                  label="Password"
+                  label="Contraseña"
+                  type="password"
                 />
               )}
             />
@@ -91,10 +122,19 @@ export const FormDialog: React.FC<IFormDialogProps> = React.forwardRef(
         </DialogContent>
         <DialogActions>
           <Stack sx={{ width: "100%", padding: "0 1em 1em" }} spacing={1}>
-            <Button onClick={handleClose} variant="contained">
+            <Button
+              variant="contained"
+              onClick={() => handleSubmit(onSubmit as any)()}
+              disabled={!isDirty || loading}
+              startIcon={
+                loading ? (
+                  <CircularProgress size={20} color="secondary" />
+                ) : null
+              }
+            >
               Iniciar sesión
             </Button>
-            <Button onClick={handleClose} variant="outlined">
+            <Button onClick={handleClose} variant="outlined" disabled={loading}>
               Cancelar
             </Button>
           </Stack>

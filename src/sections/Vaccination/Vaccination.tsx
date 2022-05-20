@@ -8,6 +8,7 @@ import { QueryForm } from "./QueryForm";
 import { VaccinationCard } from "./VaccinationCard";
 import { ButtonsHeader } from "./ButtonsHeader";
 import { RegisterVaccine } from "./RegisterVaccine";
+import { TAutorization } from "../../toolbox/interfaces/interfaces";
 const steps = [
   {
     label: "Consultar",
@@ -22,8 +23,8 @@ const steps = [
     icon: <MedicalServicesIcon fontSize="small" />,
   },
 ];
-
-export const Vaccination = () => {
+type TVaccinationProps = TAutorization;
+export const Vaccination: React.FC<TVaccinationProps> = (props) => {
   const [activeStep, setActiveStep] = useState(0);
   const Views = [
     <QueryForm setActiveStep={setActiveStep} />,
@@ -31,6 +32,8 @@ export const Vaccination = () => {
     <RegisterVaccine />,
   ];
   const view = Views[activeStep];
+  const authorization = props.isAutorized;
+  const hideNextButton = !authorization || Views.length - 1 === activeStep;
   return (
     <Box>
       <CustomStepper steps={steps} activeStep={activeStep} />
@@ -39,7 +42,7 @@ export const Vaccination = () => {
         {activeStep !== 0 && (
           <ButtonsHeader
             setActiveStep={setActiveStep}
-            hideNextButton={Views.length - 1 === activeStep}
+            hideNextButton={hideNextButton}
           />
         )}
         <br />

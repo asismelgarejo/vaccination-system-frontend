@@ -1,4 +1,11 @@
-import { Box, Button, TextField, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Collapse,
+  TextField,
+  Typography,
+} from "@mui/material";
 import DoubleArrowIcon from "@mui/icons-material/DoubleArrow";
 import esLocale from "date-fns/locale/es";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
@@ -10,6 +17,9 @@ import {
 import styles from "./QueryForm.module.scss";
 import { Controller, useForm } from "react-hook-form";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { FAKE_SERVICE } from "../../../mockups/service";
+import { useState } from "react";
+import { CustomAlerts } from "../../../components/CustomAlerts";
 const RULES = {
   required: {
     value: true,
@@ -22,18 +32,29 @@ interface IQueryFormProps {
 }
 
 export const QueryForm: React.FC<IQueryFormProps> = (props) => {
+  const [error, setError] = useState({ isError: false, message: "" });
+  const [loading, setLoading] = useState(false);
+
   const {
     handleSubmit,
     control,
     setValue,
-    formState: { errors },
+    formState: { errors, isDirty },
   } = useForm({
     defaultValues: { dni: "", birthday: new Date() },
   });
 
-  const successSumit = (data: any) => {
+  const successSumit = async (data: any) => {
     console.log(">>data", data);
-    props.setActiveStep(1);
+    setLoading(true);
+    const response = await FAKE_SERVICE("success");
+    if (response === "success") {
+      setLoading(false);
+      props.setActiveStep(1);
+    } else {
+      setLoading(false);
+      setError({ isError: true, message: "Usuario con DNI no encontrado" });
+    }
   };
 
   const onSubmit = handleSubmit(
@@ -58,6 +79,15 @@ export const QueryForm: React.FC<IQueryFormProps> = (props) => {
       </div>
       <div className={styles.QueryFormForm}>
         <Typography variant="h6">Ingrese los datos solicitados</Typography>
+        <Collapse in={error.isError}>
+          <CustomAlerts
+            severity="error"
+            closeAction={() => {
+              setError({ isError: false, message: "" });
+            }}
+            message={error.message}
+          />
+        </Collapse>
         <br />
         <Box onSubmit={onSubmit} component="form">
           <Box>
@@ -70,12 +100,21 @@ export const QueryForm: React.FC<IQueryFormProps> = (props) => {
               name="dni"
               render={({ field: { onChange, value } }) => (
                 <TextField
-                  onChange={onChange}
                   value={value}
+                  autoFocus
                   error={Boolean(errors["dni"])}
                   size="small"
+                  placeholder="DNI"
+                  onChange={(e) => {
+                    if (e.target.validity.valid)
+                      setValue("dni", e.target.value, { shouldDirty: true });
+                  }}
                   id="dni"
                   fullWidth
+                  helperText={errors["dni"]?.message ?? ""}
+                  inputProps={{
+                    pattern: "^[0-9]{0,8}$",
+                  }}
                 />
               )}
             />
@@ -110,6 +149,7 @@ export const QueryForm: React.FC<IQueryFormProps> = (props) => {
                         size="small"
                         id="birthday"
                         fullWidth
+                        helperText={errors["birthday"]?.message ?? ""}
                       />
                     )}
                   />
@@ -120,10 +160,17 @@ export const QueryForm: React.FC<IQueryFormProps> = (props) => {
           <br />
           <br />
           <Button
-            startIcon={<DoubleArrowIcon />}
             variant="contained"
             type="submit"
+            disabled={!isDirty || loading}
             fullWidth
+            startIcon={
+              loading ? (
+                <CircularProgress size={20} color="secondary" />
+              ) : (
+                <DoubleArrowIcon />
+              )
+            }
           >
             Consultar
           </Button>

@@ -5,9 +5,12 @@ import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import { FormDialog, ObjFormDialogRef } from "../FormDialog";
 import { useRef } from "react";
+import { useUserLogged } from "../../contexts/UserLogged.context";
+import { Stack } from "@mui/material";
 
 export const CustomAppBar = () => {
   const formDialogRef = useRef<ObjFormDialogRef>(null);
+    const { userLogged, setUserLogged } = useUserLogged();
 
   return (
     <Box sx={{ flexGrow: 1 }}>
@@ -16,12 +19,26 @@ export const CustomAppBar = () => {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Sistema de vacunación
           </Typography>
-          <Button
-            variant="contained"
-            onClick={() => formDialogRef && formDialogRef.current?.showDialog()}
-          >
-            Iniciar sesión
-          </Button>
+
+          {userLogged !== "" ? (
+            <Stack direction="row" spacing={2} sx={{alignItems: "center"}}>
+              <Typography sx={{ flexGrow: 1 }}>
+                Hola, {userLogged}
+              </Typography>
+              <Button variant="contained" onClick={() => setUserLogged("")}>
+                Cerrar sesión
+              </Button>
+            </Stack>
+          ) : (
+            <Button
+              variant="contained"
+              onClick={() =>
+                formDialogRef && formDialogRef.current?.showDialog()
+              }
+            >
+              Iniciar sesión
+            </Button>
+          )}
           <FormDialog ref={formDialogRef} />
         </Toolbar>
       </AppBar>
