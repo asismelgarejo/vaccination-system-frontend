@@ -51,8 +51,6 @@ export const QueryForm: React.FC<IQueryFormProps> = (props) => {
   });
 
   const successSumit = async (data: any) => {
-    console.log(">>data", data);
-    // setLoading(true);
     execGetCznByDni({
       variables: {
         dni: data.dni,

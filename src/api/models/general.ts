@@ -40,6 +40,7 @@ export interface ICitizenModel {
   gender: "M" | "F";
   address: string;
   dni: string;
+  id: string;
   vaccines: IVaccine[];
 }
 

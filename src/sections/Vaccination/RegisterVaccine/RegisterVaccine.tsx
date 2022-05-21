@@ -1,3 +1,4 @@
+import React from "react";
 import {
   Autocomplete,
   Box,
@@ -21,23 +22,28 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import esLocale from "date-fns/locale/es";
 import { Controller, useForm } from "react-hook-form";
 import SaveIcon from "@mui/icons-material/Save";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useTabsetter } from "../../../contexts/Tabsetter.context";
 import { IMaskInput } from "react-imask";
-import React from "react";
-import {
-  DOSES,
-  RISK_FACTORS,
-  VACCINATION_CENTERS,
-} from "../../../mockups/data";
-import { FAKE_SERVICE } from "../../../mockups/service";
 import { RULES } from "../../../toolbox/constants/rules";
 import { useCitizen } from "../../../contexts/Citizen.context";
+import { useMutation, useQuery } from "@apollo/client";
+import {
+  GetAllDoses,
+  GetAllRFs,
+  GetAllVCs,
+} from "../../../api/graphql/generic";
+import { ISelectGeneric } from "../../../toolbox/interfaces/interfaces";
+import { RegisterVaccineSchema } from "../../../api/graphql/vaccine";
+import { useUserLogged } from "../../../contexts/UserLogged.context";
+import { GetAllVaccines } from "../../../api/graphql/citizen";
 
 const StyledTextField = (props: TextFieldProps) => (
   <TextField {...props} size="small" fullWidth />
 );
-
+const rf_60_69 = ["rf_normal", "rf_70_79", "rf_80_more"];
+const rf_70_79 = ["rf_normal", "rf_60_69", "rf_80_more"];
+const rf_80_more = ["rf_normal", "rf_60_69", "rf_70_79"];
 const fieldsetStyles = {
   display: "grid",
   gridTemplateColumns: "repeat(6, 1fr)",
@@ -74,12 +80,30 @@ const TextMaskCustom = React.forwardRef<HTMLElement, CustomProps>(
 );
 
 export const RegisterVaccine = () => {
-  const [loading, setLoading] = useState(false);
   const { citizen } = useCitizen();
-
+  const { userLogged } = useUserLogged();
+  const { loading: loadingRFs, data: riskFactors } = useQuery(GetAllRFs);
+  const { loading: loadingVCs, data: vaccinationCenters } = useQuery(GetAllVCs);
+  const { loading: loadingDoses, data: doses } = useQuery(GetAllDoses);
+  const [
+    execRegisterVaccine,
+    { loading: loadingRegister, error: errorVaccineRegister },
+  ] = useMutation(RegisterVaccineSchema, {
+    refetchQueries: [{ query: GetAllVaccines }],
+  });
+  const loading = loadingRegister;
+  const loader = loadingRFs || loadingVCs || loadingDoses;
+  const RISK_FACTORS = riskFactors?.getAllRFs;
+  const VACCINATION_CENTERS = vaccinationCenters?.getAllVCs;
+  const DOSES = doses?.getAllDoses;
   const { setTabIndex } = useTabsetter();
-  const age = differenceInCalendarYears(new Date(), new Date(citizen?.birthday as string));
-  const citizenDoses = citizen?.vaccines.map((vaccine) => vaccine.dose.id) as string[];
+  const age = differenceInCalendarYears(
+    new Date(),
+    new Date(citizen?.birthday as string)
+  );
+  const citizenDoses = citizen?.vaccines.map(
+    (vaccine) => vaccine.dose?.id
+  ) as string[];
   const {
     handleSubmit,
     control,
@@ -89,38 +113,69 @@ export const RegisterVaccine = () => {
   } = useForm({
     defaultValues: {
       cellphone: "",
-      dose: DOSES[0],
+      dose: DOSES ? DOSES[0] : null,
       fcDose: new Date(),
       vc: null,
-      riskFactors: ["1"],
+      riskFactors: ["rf_normal"],
     },
   });
   const successSumit = async (data: any) => {
-    setLoading(true);
-    await FAKE_SERVICE();
-    setLoading(false);
-    console.log("data", data);
-    Swal.fire({
-      title: "Datos guardados exitosamente!",
-      icon: "success",
-      confirmButtonText: "Aceptar",
-      preConfirm() {
-        setTabIndex(1);
-      },
-    });
+    try {
+      await execRegisterVaccine({
+        variables: {
+          userId: userLogged?.id,
+          doseId: data.dose.id,
+          vcId: data.vc.id,
+          citizenId: citizen?.id,
+          ref_cel_number: data.cellphone.split(" ").join(""),
+          fc_dosis: data.fcDose,
+          rFactorIds: data.riskFactors,
+        },
+      });
+      Swal.fire({
+        title: "Datos guardados exitosamente!",
+        icon: "success",
+        confirmButtonText: "Aceptar",
+        preConfirm() {
+          setTabIndex(1);
+        },
+      });
+    } catch (err) {
+      Swal.fire({
+        title: "Ha ocurrido un error :(",
+        icon: "error",
+        confirmButtonText: "Aceptar",
+      });
+    }
   };
 
   const onSubmit = handleSubmit(
     (data) => successSumit(data),
-    (data) => {
-      console.log(">>data", data);
-    }
+    (data) => {}
   );
   useEffect(() => {
-    const dose = DOSES.find((dose) => !citizenDoses.includes(dose.id));
-    setValue("dose", dose as { id: string; name: string });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [setValue]);
+    if (DOSES) {
+      const dose = DOSES.find(
+        (dose: ISelectGeneric) => !citizenDoses.includes(dose.id)
+      );
+      setValue("dose", dose as ISelectGeneric);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [setValue, DOSES, citizenDoses]);
+
+  useEffect(() => {
+    if (errorVaccineRegister) {
+      Swal.fire({
+        title: "Ha ocurrido un error :(",
+        icon: "error",
+        confirmButtonText: "Aceptar",
+      });
+    }
+  }, [errorVaccineRegister]);
+
+  if (loader || !DOSES || !RISK_FACTORS || !VACCINATION_CENTERS) {
+    return <CircularProgress />;
+  }
   return (
     <Box
       component="form"
@@ -283,19 +338,20 @@ export const RegisterVaccine = () => {
             name="dose"
             render={({ field: { onChange, value } }) => (
               <StyledTextField
-                inputProps={{ readOnly: true }}
                 select
                 onChange={(event) => {
                   const ID = event?.target?.value ?? null;
                   const selectedOpt = ID
-                    ? DOSES.find((opt) => opt.id === ID)
-                    : DOSES[0];
+                    ? DOSES
+                      ? DOSES.find((opt: ISelectGeneric) => opt.id === ID)
+                      : DOSES[0]
+                    : null;
                   setValue("dose", selectedOpt as { id: string; name: string });
                 }}
-                value={value.id}
+                value={value?.id}
                 error={Boolean(errors["dose"])}
               >
-                {DOSES.map((dose) => (
+                {DOSES.map((dose: ISelectGeneric) => (
                   <MenuItem
                     key={dose.id}
                     value={dose.id}
@@ -346,7 +402,7 @@ export const RegisterVaccine = () => {
               <Autocomplete
                 disablePortal
                 value={value}
-                getOptionLabel={(v_c) => v_c.name}
+                getOptionLabel={(v_c: ISelectGeneric) => v_c.name}
                 options={VACCINATION_CENTERS}
                 onChange={(e, option) => {
                   setValue("vc", option as any);
@@ -366,19 +422,48 @@ export const RegisterVaccine = () => {
             name="riskFactors"
             render={({ field: { onChange, value } }) => (
               <FormGroup aria-label="position" row>
-                {RISK_FACTORS.map((r_f) => (
+                {RISK_FACTORS.map((r_f: ISelectGeneric) => (
                   <FormControlLabel
-                    checked={value.includes(r_f.id)}
+                    checked={value.includes(r_f.code)}
                     key={r_f.id}
-                    control={<Checkbox />}
+                    control={<Checkbox inputProps={{ name: r_f.code }} />}
                     label={r_f.name}
                     onChange={(event: any) => {
-                      let rsfs = getValues("riskFactors");
-                      const checked = event.target!.checked;
-                      if (!checked) {
-                        rsfs = rsfs.filter((idrf) => idrf !== r_f.id);
+                      let rsfs = [...getValues("riskFactors")];
+                      const cbxChecked = event.target!.checked;
+                      const cbxName = event.target!.name;
+                      if (!cbxChecked) {
+                        rsfs = rsfs.filter((rf_code) => rf_code !== r_f.code);
                       } else {
-                        rsfs.push(r_f.id);
+                        switch (cbxName) {
+                          case "rf_normal":
+                            rsfs = ["rf_normal"];
+                            break;
+                          case "rf_60_69":
+                            rsfs = rsfs.filter(
+                              (rf_code) => !rf_60_69.includes(rf_code)
+                            );
+                            rsfs.push(r_f.code);
+                            break;
+                          case "rf_70_79":
+                            rsfs = rsfs.filter(
+                              (rf_code) => !rf_70_79.includes(rf_code)
+                            );
+                            rsfs.push(r_f.code);
+                            break;
+                          case "rf_80_more":
+                            rsfs = rsfs.filter(
+                              (rf_code) => !rf_80_more.includes(rf_code)
+                            );
+                            rsfs.push(r_f.code);
+                            break;
+                          default: {
+                            rsfs = rsfs.filter(
+                              (rf_code) => rf_code !== "rf_normal"
+                            );
+                            rsfs.push(r_f.code);
+                          }
+                        }
                       }
                       setValue("riskFactors", rsfs);
                     }}

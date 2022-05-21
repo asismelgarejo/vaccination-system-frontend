@@ -41,6 +41,7 @@ export const getCitizenByDni = gql`
         gender
         address
         dni
+        id
         vaccines {
           id
           fc_dosis
