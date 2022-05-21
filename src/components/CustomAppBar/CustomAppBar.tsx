@@ -13,10 +13,12 @@ import { CircularProgress, Stack } from "@mui/material";
 import { useMutation } from "@apollo/client";
 import { LogoutMutation, Me } from "../../api/graphql/user";
 import Swal from "sweetalert2";
+import { useSteppersetter } from "../../contexts/Steppersetter.context";
 
 export const CustomAppBar = () => {
   const [loading, setLoading] = useState(false);
   const formDialogRef = useRef<ObjFormDialogRef>(null);
+  const { activeStep, setActiveStep } = useSteppersetter();
   const { userLogged } = useUserLogged();
   const [execLogout] = useMutation(LogoutMutation, {
     refetchQueries: [{ query: Me }],
@@ -29,6 +31,7 @@ export const CustomAppBar = () => {
     } = await execLogout({ variables: { email: userLogged?.email } });
     if (logoutData.status === "success") {
       deleteMe();
+      if (activeStep !== 0) setActiveStep(0);
       setLoading(false);
     } else {
       setLoading(false);

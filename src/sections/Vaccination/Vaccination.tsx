@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { Box } from "@mui/material";
 import { CustomStepper } from "../../components/CustomStepper";
 import StorageIcon from "@mui/icons-material/Storage";
@@ -10,6 +10,7 @@ import { ButtonsHeader } from "./ButtonsHeader";
 import { RegisterVaccine } from "./RegisterVaccine";
 import { TAutorization } from "../../toolbox/interfaces/interfaces";
 import { useCitizen } from "../../contexts/Citizen.context";
+import { useSteppersetter } from "../../contexts/Steppersetter.context";
 const steps = [
   {
     label: "Consultar",
@@ -27,11 +28,13 @@ const steps = [
 
 type TVaccinationProps = TAutorization;
 export const Vaccination: React.FC<TVaccinationProps> = (props) => {
-  const [activeStep, setActiveStep] = useState(0);
+  const { activeStep, setActiveStep } = useSteppersetter();
   const { setCitizen, citizen } = useCitizen();
   const [hideNextButton, setHideNextButton] = useState(false);
   const Views = [
-    <QueryForm setActiveStep={setActiveStep} />,
+    <QueryForm
+      setActiveStep={setActiveStep as Dispatch<SetStateAction<number>>}
+    />,
     <VaccinationCard />,
     <RegisterVaccine />,
   ];
@@ -42,6 +45,7 @@ export const Vaccination: React.FC<TVaccinationProps> = (props) => {
     const condition = !authorization || Views.length - 1 === activeStep;
     if (condition) {
       setHideNextButton(true);
+      return;
     }
     if (citizen?.vaccines && citizen?.vaccines?.length >= 4) {
       setHideNextButton(true);
@@ -51,8 +55,7 @@ export const Vaccination: React.FC<TVaccinationProps> = (props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [citizen]);
   return (
-    <Box
-    >
+    <Box>
       <CustomStepper steps={steps} activeStep={activeStep} />
       <Box
         sx={{
@@ -66,7 +69,7 @@ export const Vaccination: React.FC<TVaccinationProps> = (props) => {
         <br />
         {activeStep !== 0 && (
           <ButtonsHeader
-            setActiveStep={setActiveStep}
+            setActiveStep={setActiveStep as Dispatch<SetStateAction<number>>}
             prevAction={() => {
               if (activeStep === 1) {
                 setCitizen(null);
