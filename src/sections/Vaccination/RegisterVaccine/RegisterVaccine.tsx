@@ -37,6 +37,7 @@ import { ISelectGeneric } from "../../../toolbox/interfaces/interfaces";
 import { RegisterVaccineSchema } from "../../../api/graphql/vaccine";
 import { useUserLogged } from "../../../contexts/UserLogged.context";
 import { GetAllVaccines } from "../../../api/graphql/citizen";
+import { useSteppersetter } from "../../../contexts/Steppersetter.context";
 
 const StyledTextField = (props: TextFieldProps) => (
   <TextField {...props} size="small" fullWidth />
@@ -90,6 +91,8 @@ export const RegisterVaccine = () => {
   const { loading: loadingRFs, data: riskFactors } = useQuery(GetAllRFs);
   const { loading: loadingVCs, data: vaccinationCenters } = useQuery(GetAllVCs);
   const { loading: loadingDoses, data: doses } = useQuery(GetAllDoses);
+  const { setActiveStep } = useSteppersetter();
+
   const [
     execRegisterVaccine,
     { loading: loadingRegister, error: errorVaccineRegister },
@@ -142,6 +145,7 @@ export const RegisterVaccine = () => {
         icon: "success",
         confirmButtonText: "Aceptar",
         preConfirm() {
+          setActiveStep(0);
           setTabIndex(1);
         },
       });

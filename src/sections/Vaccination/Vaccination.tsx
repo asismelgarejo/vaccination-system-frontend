@@ -39,10 +39,11 @@ export const Vaccination: React.FC<TVaccinationProps> = (props) => {
     <RegisterVaccine />,
   ];
   const view = Views[activeStep];
+  const isLastStep = Views.length - 1 <= activeStep
   const authorization = props.isAutorized;
 
   useEffect(() => {
-    const condition = !authorization || Views.length - 1 === activeStep;
+    const condition = !authorization || isLastStep;
     if (condition) {
       setHideNextButton(true);
       return;
@@ -51,7 +52,7 @@ export const Vaccination: React.FC<TVaccinationProps> = (props) => {
       setHideNextButton(true);
       return;
     }
-    setHideNextButton(false)
+    setHideNextButton(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [citizen]);
   return (
@@ -75,7 +76,7 @@ export const Vaccination: React.FC<TVaccinationProps> = (props) => {
                 setCitizen(null);
               }
             }}
-            hideNextButton={hideNextButton}
+            hideNextButton={hideNextButton || isLastStep}
           />
         )}
         <br />

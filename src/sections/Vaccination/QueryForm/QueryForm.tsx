@@ -23,6 +23,8 @@ import { useMutation } from "@apollo/client";
 import { getCitizenByDni } from "../../../api/graphql/citizen";
 import { format } from "date-fns";
 import { useCitizen } from "../../../contexts/Citizen.context";
+import { motion } from "framer-motion";
+
 const RULES = {
   required: {
     value: true,
@@ -33,6 +35,57 @@ const RULES = {
 interface IQueryFormProps {
   setActiveStep: React.Dispatch<React.SetStateAction<number>>;
 }
+
+export const MinsaLogoAnimation = () => (
+  <motion.div
+    animate={{
+      scale: [3, 1],
+      opacity: [0, 1],
+    }}
+    transition={{
+      duration: 0.6,
+      ease: "easeInOut",
+      times: [0, 1],
+      delay: 0.2,
+    }}
+  >
+    <img
+      src={MinsaLogo}
+      alt={"MinsaLogo"}
+      className={styles.MinsaLogo}
+      onDragStart={(e) => e.preventDefault()}
+    />
+  </motion.div>
+);
+export const CarnetDeVacunacionLogoAnimation = () => (
+  <motion.div
+    // animate={{
+    //   scale: [1, 1.02, 1],
+    //   y: [0, -20, 0],
+    // }}
+    // transition={{
+    //   duration: 4,
+    //   ease: "easeInOut",
+    //   delay: 0.8,
+    //   repeat: Infinity,
+    // }}
+    animate={{
+      opacity: [0, 1],
+    }}
+    transition={{
+      duration: 1,
+      ease: "easeInOut",
+      delay: 0.8,
+    }}
+  >
+    <img
+      src={CarnetDeVacunacion}
+      alt={"CarnetDeVacunacion"}
+      className={styles.CarnetDeVacunacion}
+      onDragStart={(e) => e.preventDefault()}
+    />
+  </motion.div>
+);
 
 export const QueryForm: React.FC<IQueryFormProps> = (props) => {
   const [error, setError] = useState({ isError: false, message: "" });
@@ -83,18 +136,8 @@ export const QueryForm: React.FC<IQueryFormProps> = (props) => {
   return (
     <div className={styles.QueryForm}>
       <div className={styles.QueryFormBackground}>
-        <img
-          src={MinsaLogo}
-          alt={"MinsaLogo"}
-          className={styles.MinsaLogo}
-          onDragStart={(e) => e.preventDefault()}
-        />
-        <img
-          src={CarnetDeVacunacion}
-          alt={"CarnetDeVacunacion"}
-          className={styles.CarnetDeVacunacion}
-          onDragStart={(e) => e.preventDefault()}
-        />
+        <MinsaLogoAnimation />
+        <CarnetDeVacunacionLogoAnimation />
       </div>
       <div className={styles.QueryFormForm}>
         <Typography variant="h6">Ingrese los datos solicitados</Typography>
