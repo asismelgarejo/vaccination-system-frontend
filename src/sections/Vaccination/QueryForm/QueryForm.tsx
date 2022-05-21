@@ -17,9 +17,12 @@ import {
 import styles from "./QueryForm.module.scss";
 import { Controller, useForm } from "react-hook-form";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
-import { FAKE_SERVICE } from "../../../mockups/service";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CustomAlerts } from "../../../components/CustomAlerts";
+import { useMutation } from "@apollo/client";
+import { getCitizenByDni } from "../../../api/graphql/citizen";
+import { format } from "date-fns";
+import { useCitizen } from "../../../contexts/Citizen.context";
 const RULES = {
   required: {
     value: true,
@@ -33,8 +36,11 @@ interface IQueryFormProps {
 
 export const QueryForm: React.FC<IQueryFormProps> = (props) => {
   const [error, setError] = useState({ isError: false, message: "" });
-  const [loading, setLoading] = useState(false);
-
+  const { setCitizen } = useCitizen();
+  const [
+    execGetCznByDni,
+    { data: citizenByDni, loading, error: errorFetching },
+  ] = useMutation(getCitizenByDni);
   const {
     handleSubmit,
     control,
@@ -46,21 +52,36 @@ export const QueryForm: React.FC<IQueryFormProps> = (props) => {
 
   const successSumit = async (data: any) => {
     console.log(">>data", data);
-    setLoading(true);
-    const response = await FAKE_SERVICE("success");
-    if (response === "success") {
-      setLoading(false);
-      props.setActiveStep(1);
-    } else {
-      setLoading(false);
-      setError({ isError: true, message: "Usuario con DNI no encontrado" });
-    }
+    // setLoading(true);
+    execGetCznByDni({
+      variables: {
+        dni: data.dni,
+        birthday: format(data.birthday, "yyyy/MM/dd"),
+      },
+    });
   };
 
   const onSubmit = handleSubmit(
     (data) => successSumit(data),
     () => {}
   );
+  useEffect(() => {
+    if (errorFetching) {
+      setError({ isError: true, message: "Ha ocurrido un error" });
+      return;
+    }
+    if (citizenByDni && citizenByDni?.getCitizenByDni?.messages) {
+      setError({ isError: true, message: "Ciudadano no encontrado" });
+      return;
+    }
+    if (!loading && citizenByDni?.getCitizenByDni) {
+      setCitizen(citizenByDni?.getCitizenByDni);
+      props.setActiveStep(1);
+      return;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [errorFetching, loading, citizenByDni?.getCitizenByDni]);
+
   return (
     <div className={styles.QueryForm}>
       <div className={styles.QueryFormBackground}>

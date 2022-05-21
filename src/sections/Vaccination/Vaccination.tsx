@@ -9,6 +9,7 @@ import { VaccinationCard } from "./VaccinationCard";
 import { ButtonsHeader } from "./ButtonsHeader";
 import { RegisterVaccine } from "./RegisterVaccine";
 import { TAutorization } from "../../toolbox/interfaces/interfaces";
+import { useCitizen } from "../../contexts/Citizen.context";
 const steps = [
   {
     label: "Consultar",
@@ -23,9 +24,12 @@ const steps = [
     icon: <MedicalServicesIcon fontSize="small" />,
   },
 ];
+
 type TVaccinationProps = TAutorization;
 export const Vaccination: React.FC<TVaccinationProps> = (props) => {
   const [activeStep, setActiveStep] = useState(0);
+  const { setCitizen } = useCitizen();
+
   const Views = [
     <QueryForm setActiveStep={setActiveStep} />,
     <VaccinationCard />,
@@ -42,6 +46,11 @@ export const Vaccination: React.FC<TVaccinationProps> = (props) => {
         {activeStep !== 0 && (
           <ButtonsHeader
             setActiveStep={setActiveStep}
+            prevAction={() => {
+              if (activeStep === 1) {
+                setCitizen(null);
+              }
+            }}
             hideNextButton={hideNextButton}
           />
         )}

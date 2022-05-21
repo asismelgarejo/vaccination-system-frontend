@@ -8,9 +8,12 @@ import DialogTitle from "@mui/material/DialogTitle";
 import { Controller, useForm } from "react-hook-form";
 import { CircularProgress, Collapse, Stack } from "@mui/material";
 import { RULES } from "../../toolbox/constants/rules";
-import { FAKE_SERVICE } from "../../mockups/service";
 import { CustomAlerts } from "../CustomAlerts";
-import { useUserLogged } from "../../contexts/UserLogged.context";
+import {
+  useRefreshContextMe,
+} from "../../contexts/UserLogged.context";
+import { LoginMutation, Me } from "../../api/graphql/user";
+import { useMutation } from "@apollo/client";
 
 export interface ObjFormDialog {
   showDialog(): void;
@@ -23,23 +26,30 @@ interface IFormDialogProps {
 
 export const FormDialog: React.FC<IFormDialogProps> = React.forwardRef(
   (props, ref) => {
+    const [execLogin] = useMutation(LoginMutation, {
+      refetchQueries: [{ query: Me }],
+    });
+    const { execMe } = useRefreshContextMe();
+
     const [open, setOpen] = React.useState(false);
     const [error, setError] = React.useState({ isError: false, message: "" });
     const [loading, setLoading] = React.useState(false);
-    const { setUserLogged } = useUserLogged();
     const handleClose = () => {
       setOpen(false);
     };
 
     const successSumit = async (data: any) => {
-      console.log(">>data", data);
       setLoading(true);
-      const response = await FAKE_SERVICE("success");
-      if (response === "success") {
+      const {
+        data: { login: loginData },
+      } = await execLogin({
+        variables: { email: data.email, password: data.password },
+      });
+      if (loginData?.status === "success") {
         setLoading(false);
         setValue("password", "");
         setValue("email", "");
-        setUserLogged("Asis Melgarejo");
+        execMe();
         setOpen(false);
       } else {
         setLoading(false);

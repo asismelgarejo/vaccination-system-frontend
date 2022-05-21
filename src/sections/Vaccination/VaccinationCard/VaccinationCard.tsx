@@ -5,6 +5,10 @@ import ShieldOutlinedIcon from "@mui/icons-material/ShieldOutlined";
 import MedicationOutlinedIcon from "@mui/icons-material/MedicationOutlined";
 import RoomIcon from "@mui/icons-material/Room";
 import { styled } from "@mui/material/styles";
+import es from "date-fns/locale/es";
+
+import { useCitizen } from "../../../contexts/Citizen.context";
+import { differenceInCalendarYears, format } from "date-fns";
 
 const StyledBox = styled(Box)({ background: "#E7F6F5", padding: ".4em 0" });
 const StyledTypography = styled(Typography)({
@@ -13,6 +17,11 @@ const StyledTypography = styled(Typography)({
 });
 
 export const VaccinationCard = () => {
+  const { citizen } = useCitizen();
+  const age = differenceInCalendarYears(
+    new Date(),
+    new Date(citizen?.birthday as string)
+  );
   return (
     <Box>
       <Box
@@ -31,7 +40,9 @@ export const VaccinationCard = () => {
           <Avatar sx={{ width: 60, height: 60 }} />
         </Box>
         <Box sx={{ width: "100%" }}>
-          <Typography variant="h6">MELGAREJO LOPEZ ASIS</Typography>
+          <Typography variant="h6">
+            {`${citizen?.fr_lastname} ${citizen?.mr_lastname} ${citizen?.names}`.toUpperCase()}
+          </Typography>
           <Divider />
           <Box>
             <Typography
@@ -42,7 +53,7 @@ export const VaccinationCard = () => {
               Fec. Nac.:&ensp;
             </Typography>
             <Typography variant="subtitle1" component="span">
-              16/01/2001
+              {format(new Date(citizen?.birthday as string), "dd/MM/yyyy")}
             </Typography>
           </Box>
           <Divider />
@@ -55,7 +66,7 @@ export const VaccinationCard = () => {
               Edad:&ensp;
             </Typography>
             <Typography variant="subtitle1" component="span">
-              21 años
+              {`${age} ${age > 1 ? "años" : "año"}`}
             </Typography>
           </Box>
           <Divider />
@@ -84,46 +95,30 @@ export const VaccinationCard = () => {
             overflow: "hidden",
           }}
         >
-          <StyledBox>
-            <StyledTypography>
-              <ArrowCircleRightOutlinedIcon fontSize="small" />1<sup>a</sup>{" "}
-              dosis
-            </StyledTypography>
-            <Box sx={{ paddingLeft: "1em" }}>
+          {citizen?.vaccines.map((vaccine) => (
+            <StyledBox key={vaccine.id}>
               <StyledTypography>
-                <ShieldOutlinedIcon fontSize="small" />
-                Domingo 29 de Ago. del 2021
+                <ArrowCircleRightOutlinedIcon fontSize="small" />
+                {vaccine?.dose.name}
               </StyledTypography>
-              <StyledTypography>
-                <MedicationOutlinedIcon fontSize="small" />
-                Vacuna contra covid
-              </StyledTypography>
-              <StyledTypography>
-                <RoomIcon fontSize="small" />
-                LIMA - IEP SAN JOSE
-              </StyledTypography>
-            </Box>
-          </StyledBox>
-          <StyledBox>
-            <StyledTypography>
-              <ArrowCircleRightOutlinedIcon fontSize="small" />1<sup>a</sup>{" "}
-              dosis
-            </StyledTypography>
-            <Box sx={{ paddingLeft: "1em" }}>
-              <StyledTypography>
-                <ShieldOutlinedIcon fontSize="small" />
-                Domingo 29 de Ago. del 2021
-              </StyledTypography>
-              <StyledTypography>
-                <MedicationOutlinedIcon fontSize="small" />
-                Vacuna contra covid
-              </StyledTypography>
-              <StyledTypography>
-                <RoomIcon fontSize="small" />
-                LIMA - IEP SAN JOSE
-              </StyledTypography>
-            </Box>
-          </StyledBox>
+              <Box sx={{ paddingLeft: "1em" }}>
+                <StyledTypography>
+                  <ShieldOutlinedIcon fontSize="small" />
+                  {format(new Date(vaccine.fc_dosis), "d 'de' MMMM 'del' yyyy", {
+                    locale: es,
+                  })}
+                </StyledTypography>
+                <StyledTypography>
+                  <MedicationOutlinedIcon fontSize="small" />
+                  Vacuna contra covid
+                </StyledTypography>
+                <StyledTypography>
+                  <RoomIcon fontSize="small" />
+                  {vaccine.vc.name.toUpperCase()}
+                </StyledTypography>
+              </Box>
+            </StyledBox>
+          ))}
         </Box>
       </Box>
     </Box>

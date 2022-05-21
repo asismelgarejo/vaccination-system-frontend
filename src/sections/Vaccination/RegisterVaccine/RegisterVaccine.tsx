@@ -28,11 +28,11 @@ import React from "react";
 import {
   DOSES,
   RISK_FACTORS,
-  USER,
   VACCINATION_CENTERS,
 } from "../../../mockups/data";
 import { FAKE_SERVICE } from "../../../mockups/service";
 import { RULES } from "../../../toolbox/constants/rules";
+import { useCitizen } from "../../../contexts/Citizen.context";
 
 const StyledTextField = (props: TextFieldProps) => (
   <TextField {...props} size="small" fullWidth />
@@ -75,7 +75,11 @@ const TextMaskCustom = React.forwardRef<HTMLElement, CustomProps>(
 
 export const RegisterVaccine = () => {
   const [loading, setLoading] = useState(false);
+  const { citizen } = useCitizen();
+
   const { setTabIndex } = useTabsetter();
+  const age = differenceInCalendarYears(new Date(), new Date(citizen?.birthday as string));
+  const citizenDoses = citizen?.vaccines.map((vaccine) => vaccine.dose.id) as string[];
   const {
     handleSubmit,
     control,
@@ -113,8 +117,9 @@ export const RegisterVaccine = () => {
     }
   );
   useEffect(() => {
-    const dose = DOSES.find((dose) => !USER.doses.includes(dose.id));
+    const dose = DOSES.find((dose) => !citizenDoses.includes(dose.id));
     setValue("dose", dose as { id: string; name: string });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setValue]);
   return (
     <Box
@@ -139,7 +144,7 @@ export const RegisterVaccine = () => {
         <Box sx={{ gridColumn: "1 / 2" }}>
           <FormLabel component="p">DNI</FormLabel>
           <StyledTextField
-            defaultValue={USER.dni}
+            defaultValue={citizen?.dni}
             InputProps={{
               readOnly: true,
             }}
@@ -148,7 +153,7 @@ export const RegisterVaccine = () => {
         <Box sx={{ gridColumn: "1 / span 2" }}>
           <FormLabel component="p">AP. Paterno</FormLabel>
           <StyledTextField
-            defaultValue={USER.frLastname}
+            defaultValue={citizen?.fr_lastname}
             InputProps={{
               readOnly: true,
             }}
@@ -157,7 +162,7 @@ export const RegisterVaccine = () => {
         <Box sx={{ gridColumn: "3 / span 2" }}>
           <FormLabel component="p">AP. Materno</FormLabel>
           <StyledTextField
-            defaultValue={USER.mrLastname}
+            defaultValue={citizen?.mr_lastname}
             InputProps={{
               readOnly: true,
             }}
@@ -166,7 +171,7 @@ export const RegisterVaccine = () => {
         <Box sx={{ gridColumn: "5 / span 2" }}>
           <FormLabel component="p">Nombres</FormLabel>
           <StyledTextField
-            defaultValue={USER.names}
+            defaultValue={citizen?.names}
             InputProps={{
               readOnly: true,
             }}
@@ -178,7 +183,7 @@ export const RegisterVaccine = () => {
             <FormControlLabel
               control={
                 <Radio
-                  checked={USER.gender.name === "M"}
+                  checked={citizen?.gender === "M"}
                   inputProps={{
                     readOnly: true,
                   }}
@@ -189,7 +194,7 @@ export const RegisterVaccine = () => {
             <FormControlLabel
               control={
                 <Radio
-                  checked={USER.gender.name === "F"}
+                  checked={citizen?.gender === "F"}
                   inputProps={{
                     readOnly: true,
                   }}
@@ -202,10 +207,7 @@ export const RegisterVaccine = () => {
         <Box sx={{ gridColumn: "3 / span 2" }}>
           <FormLabel component="p">Edad</FormLabel>
           <StyledTextField
-            defaultValue={`${differenceInCalendarYears(
-              new Date(),
-              USER.birthday
-            )} años`}
+            defaultValue={`${age} ${age > 1 ? "años" : "año"}`}
             InputProps={{
               readOnly: true,
             }}
@@ -214,7 +216,10 @@ export const RegisterVaccine = () => {
         <Box sx={{ gridColumn: "5 / span 2" }}>
           <FormLabel component="p">Fecha de nacimiento</FormLabel>
           <StyledTextField
-            defaultValue={format(USER.birthday, "dd/MM/yyyy")}
+            defaultValue={format(
+              new Date(citizen?.birthday as string),
+              "dd/MM/yyyy"
+            )}
             InputProps={{
               readOnly: true,
             }}
@@ -244,7 +249,7 @@ export const RegisterVaccine = () => {
         <Box sx={{ gridColumn: "3 / -1" }}>
           <FormLabel component="p">Dirección</FormLabel>
           <StyledTextField
-            defaultValue={USER.address}
+            defaultValue={citizen?.address}
             InputProps={{
               readOnly: true,
             }}
@@ -278,7 +283,7 @@ export const RegisterVaccine = () => {
             name="dose"
             render={({ field: { onChange, value } }) => (
               <StyledTextField
-                inputProps={{ readonly: true, disable: true }}
+                inputProps={{ readOnly: true }}
                 select
                 onChange={(event) => {
                   const ID = event?.target?.value ?? null;
@@ -294,7 +299,7 @@ export const RegisterVaccine = () => {
                   <MenuItem
                     key={dose.id}
                     value={dose.id}
-                    disabled={USER.doses.includes(dose.id)}
+                    disabled={citizenDoses.includes(dose.id)}
                   >
                     {dose.name}
                   </MenuItem>

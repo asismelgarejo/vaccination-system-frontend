@@ -6,7 +6,6 @@ import Box from "@mui/material/Box";
 import { useTabsetter } from "../../contexts/Tabsetter.context";
 
 const StyledTabs = styled((props: TabsProps) => <Tabs {...props} />)({
-  position: "relative",
   width: "100% !important",
   "& .MuiTabs-indicator": {
     display: "none",
@@ -61,16 +60,23 @@ export const CustomTabs: FC<ICustomTabsProps> = (props) => {
   return (
     <Box sx={{ width: "100%" }}>
       <Box>
-        <StyledTabs value={tabIndex} onChange={handleChange}>
-          {props.tabs.map(({ label, icon }, index) => (
-            <StyledTab
-              label={label}
-              iconPosition="start"
-              icon={icon}
-              key={index}
-              disabled={props?.disabledTab === index}
-            />
-          ))}
+        <Box
+          sx={{
+            position: "relative",
+            width: "100%",
+          }}
+        >
+          <StyledTabs value={tabIndex} onChange={handleChange}>
+            {props.tabs.map(({ label, icon }, index) => (
+              <StyledTab
+                label={label}
+                iconPosition="start"
+                icon={icon}
+                key={index}
+                disabled={props?.disabledTab === index}
+              />
+            ))}
+          </StyledTabs>
           <span
             style={{
               width: "100%",
@@ -80,7 +86,7 @@ export const CustomTabs: FC<ICustomTabsProps> = (props) => {
               bottom: "0px",
             }}
           />
-        </StyledTabs>
+        </Box>
         <Box
           sx={{
             border: "1px solid #AEAEAE",

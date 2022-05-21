@@ -6,72 +6,43 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
+import { IVaccineModel } from "../../api/models/general";
+import { differenceInCalendarYears } from "date-fns";
 
-function createData({
-  dni,
-  names,
-  fr_lastname,
-  mr_lastname,
-  gender,
-  birthday,
-  cellphone,
-  vc,
-  age,
-  fcDose,
-  dose,
-  riskFactors,
-}: {
-  dni: string;
-  names: string;
-  fr_lastname: string;
-  mr_lastname: string;
-  age: string;
-  dose: string;
-  gender: string;
-  birthday: Date;
-  cellphone: string;
-  fcDose: Date;
-  vc: string;
-  riskFactors: string[];
-}) {
-  const f_names = `${fr_lastname} ${mr_lastname} ${names}`;
-  const f_birthday = birthday.toLocaleDateString();
-  const f_dose = fcDose.toLocaleDateString();
+function formatVaccine(vaccine: IVaccineModel) {
+  const f_names = `${vaccine.citizen.fr_lastname} ${vaccine.citizen.mr_lastname} ${vaccine.citizen.names}`;
+  const f_birthday = vaccine.citizen.birthday;
+  const f_dose = vaccine.fc_dosis;
+  const age = differenceInCalendarYears(
+    new Date(),
+    new Date(vaccine.citizen.birthday)
+  );
+  const riskFactors = vaccine.riskFactors
+    .reduce((prev, next) => prev + ", " + next.name, "")
+    .slice(2);
   return {
-    dni,
+    dni: vaccine.citizen.dni,
     names: f_names,
-    gender,
+    gender: vaccine.citizen.gender,
     birthday: f_birthday,
-    cellphone,
-    vc,
+    cellphone: vaccine.ref_cel_number,
+    vc: vaccine.vc.name,
     f_dose,
-    dose,
+    dose: vaccine.dose.name,
     age,
     riskFactors,
   };
 }
 
-const rows = [
-  createData({
-    dni: "75958725",
-    names: "Asis",
-    fr_lastname: "Melgarejo",
-    mr_lastname: "Lopez",
-    gender: "M",
-    birthday: new Date(),
-    fcDose: new Date(),
-    dose: "1ra dosis",
-    cellphone: "933414725",
-    vc: "Hospital de Barranca",
-    riskFactors: ["Normal", "Normal 2"],
-    age: "21 años",
-  }),
-];
+interface ICustomTableProps {
+  vaccines: IVaccineModel[];
+}
 
-export const CustomTable = () => {
+export const CustomTable: React.FC<ICustomTableProps> = (props) => {
+  const rows = props.vaccines.map((vaccine) => formatVaccine(vaccine));
   return (
     <TableContainer component={Paper}>
-      <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
+      <Table size="small" aria-label="a dense table">
         <TableHead>
           <TableRow>
             <TableCell>DNI</TableCell>
@@ -103,7 +74,7 @@ export const CustomTable = () => {
               <TableCell>{row.dose}</TableCell>
               <TableCell>{row.f_dose}</TableCell>
               <TableCell>{row.vc}</TableCell>
-              <TableCell>{row.riskFactors.join(", ")}</TableCell>
+              <TableCell>{row.riskFactors}</TableCell>
             </TableRow>
           ))}
         </TableBody>

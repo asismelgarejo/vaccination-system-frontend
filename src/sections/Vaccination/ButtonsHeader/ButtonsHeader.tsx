@@ -6,6 +6,8 @@ interface IButtonsHeaderProps {
   setActiveStep: React.Dispatch<React.SetStateAction<number>>;
   hidePrevButton?: boolean;
   hideNextButton?: boolean;
+  prevAction?(): void;
+  nextAction?(): void;
 }
 
 export const ButtonsHeader: React.FC<IButtonsHeaderProps> = (props) => {
@@ -15,7 +17,12 @@ export const ButtonsHeader: React.FC<IButtonsHeaderProps> = (props) => {
         <Button
           variant="outlined"
           startIcon={<ArrowBackIcon />}
-          onClick={() => props.setActiveStep((prev) => prev - 1)}
+          onClick={() => {
+            if (props?.prevAction) {
+              props?.prevAction();
+            }
+            props.setActiveStep((prev) => prev - 1);
+          }}
         >
           Volver
         </Button>
