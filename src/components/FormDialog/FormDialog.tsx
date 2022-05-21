@@ -36,6 +36,7 @@ export const FormDialog: React.FC<IFormDialogProps> = React.forwardRef(
     const [loading, setLoading] = React.useState(false);
     const handleClose = () => {
       setOpen(false);
+      reset({ email: "", password: "" });
     };
 
     const successSumit = async (data: any) => {
@@ -70,6 +71,7 @@ export const FormDialog: React.FC<IFormDialogProps> = React.forwardRef(
       handleSubmit,
       control,
       setValue,
+      reset,
       formState: { errors, isDirty },
     } = useForm({
       defaultValues: { email: "", password: "" },
@@ -80,7 +82,7 @@ export const FormDialog: React.FC<IFormDialogProps> = React.forwardRef(
     );
 
     return (
-      <Dialog open={open} onClose={handleClose}>
+      <Dialog open={open}>
         <DialogTitle sx={{ paddingBottom: "0" }}>Iniciar sesión</DialogTitle>
         <DialogContent>
           <Collapse in={error.isError}>

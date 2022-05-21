@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Box } from "@mui/material";
 import { CustomStepper } from "../../components/CustomStepper";
 import StorageIcon from "@mui/icons-material/Storage";
@@ -28,8 +28,8 @@ const steps = [
 type TVaccinationProps = TAutorization;
 export const Vaccination: React.FC<TVaccinationProps> = (props) => {
   const [activeStep, setActiveStep] = useState(0);
-  const { setCitizen } = useCitizen();
-
+  const { setCitizen, citizen } = useCitizen();
+  const [hideNextButton, setHideNextButton] = useState(false);
   const Views = [
     <QueryForm setActiveStep={setActiveStep} />,
     <VaccinationCard />,
@@ -37,11 +37,32 @@ export const Vaccination: React.FC<TVaccinationProps> = (props) => {
   ];
   const view = Views[activeStep];
   const authorization = props.isAutorized;
-  const hideNextButton = !authorization || Views.length - 1 === activeStep;
+
+  useEffect(() => {
+    const condition = !authorization || Views.length - 1 === activeStep;
+    if (condition) {
+      setHideNextButton(true);
+    }
+    if (citizen?.vaccines && citizen?.vaccines?.length >= 4) {
+      setHideNextButton(true);
+      return;
+    }
+    setHideNextButton(false)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [citizen]);
   return (
-    <Box>
+    <Box
+    >
       <CustomStepper steps={steps} activeStep={activeStep} />
-      <Box sx={{ maxWidth: "75%", margin: "0 auto" }}>
+      <Box
+        sx={{
+          maxWidth: "100%",
+          "@media screen and (min-width: 600px)": {
+            maxWidth: "75%",
+            margin: "0 auto",
+          },
+        }}
+      >
         <br />
         {activeStep !== 0 && (
           <ButtonsHeader

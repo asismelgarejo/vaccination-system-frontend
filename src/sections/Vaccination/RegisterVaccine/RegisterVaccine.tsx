@@ -46,14 +46,19 @@ const rf_70_79 = ["rf_normal", "rf_60_69", "rf_80_more"];
 const rf_80_more = ["rf_normal", "rf_60_69", "rf_70_79"];
 const fieldsetStyles = {
   display: "grid",
-  gridTemplateColumns: "repeat(6, 1fr)",
-  gridTemplateRow: "repeat(4, auto)",
-  columnGap: "1em",
+  gridTemplateColumns: "repeat(2, 1fr)",
+  gridAutoRows: "auto",
+  columnGap: "8px",
   rowGap: "1em",
   border: "1px solid #AEAEAE",
   boxSizing: "border-box",
   padding: "1em",
   position: "relative",
+  "@media screen and (min-width: 600px)": {
+    gridTemplateColumns: "repeat(6, 1fr)",
+    gridTemplateRow: "repeat(4, auto)",
+    columnGap: "1em",
+  },
 };
 interface CustomProps {
   onChange: (event: { target: { name: string; value: string } }) => void;
@@ -196,7 +201,11 @@ export const RegisterVaccine = () => {
             Datos del paciente
           </Typography>
         </Box>
-        <Box sx={{ gridColumn: "1 / 2" }}>
+        <Box
+          sx={{
+            gridColumn: "1 / 2",
+          }}
+        >
           <FormLabel component="p">DNI</FormLabel>
           <StyledTextField
             defaultValue={citizen?.dni}
@@ -205,7 +214,14 @@ export const RegisterVaccine = () => {
             }}
           />
         </Box>
-        <Box sx={{ gridColumn: "1 / span 2" }}>
+        <Box
+          sx={{
+            gridColumn: "1 / -1",
+            "@media screen and (min-width: 600px)": {
+              gridColumn: "1 / span 2",
+            },
+          }}
+        >
           <FormLabel component="p">AP. Paterno</FormLabel>
           <StyledTextField
             defaultValue={citizen?.fr_lastname}
@@ -214,7 +230,14 @@ export const RegisterVaccine = () => {
             }}
           />
         </Box>
-        <Box sx={{ gridColumn: "3 / span 2" }}>
+        <Box
+          sx={{
+            gridColumn: "1 / -1",
+            "@media screen and (min-width: 600px)": {
+              gridColumn: "3 / span 2",
+            },
+          }}
+        >
           <FormLabel component="p">AP. Materno</FormLabel>
           <StyledTextField
             defaultValue={citizen?.mr_lastname}
@@ -223,7 +246,14 @@ export const RegisterVaccine = () => {
             }}
           />
         </Box>
-        <Box sx={{ gridColumn: "5 / span 2" }}>
+        <Box
+          sx={{
+            gridColumn: "1 / -1",
+            "@media screen and (min-width: 600px)": {
+              gridColumn: "5 / span 2",
+            },
+          }}
+        >
           <FormLabel component="p">Nombres</FormLabel>
           <StyledTextField
             defaultValue={citizen?.names}
@@ -232,7 +262,14 @@ export const RegisterVaccine = () => {
             }}
           />
         </Box>
-        <Box sx={{ gridColumn: "1 / span 2" }}>
+        <Box
+          sx={{
+            gridColumn: "1 / -1",
+            "@media screen and (min-width: 600px)": {
+              gridColumn: "1 / span 2",
+            },
+          }}
+        >
           <FormLabel component="p">Sexo</FormLabel>
           <RadioGroup row>
             <FormControlLabel
@@ -259,7 +296,14 @@ export const RegisterVaccine = () => {
             />
           </RadioGroup>
         </Box>
-        <Box sx={{ gridColumn: "3 / span 2" }}>
+        <Box
+          sx={{
+            gridColumn: "1 / -1",
+            "@media screen and (min-width: 600px)": {
+              gridColumn: "3 / span 2",
+            },
+          }}
+        >
           <FormLabel component="p">Edad</FormLabel>
           <StyledTextField
             defaultValue={`${age} ${age > 1 ? "años" : "año"}`}
@@ -268,7 +312,14 @@ export const RegisterVaccine = () => {
             }}
           />
         </Box>
-        <Box sx={{ gridColumn: "5 / span 2" }}>
+        <Box
+          sx={{
+            gridColumn: "1 / -1",
+            "@media screen and (min-width: 600px)": {
+              gridColumn: "5 / span 2",
+            },
+          }}
+        >
           <FormLabel component="p">Fecha de nacimiento</FormLabel>
           <StyledTextField
             defaultValue={format(
@@ -280,7 +331,14 @@ export const RegisterVaccine = () => {
             }}
           />
         </Box>
-        <Box sx={{ gridColumn: "1 / span 2" }}>
+        <Box
+          sx={{
+            gridColumn: "1 / -1",
+            "@media screen and (min-width: 600px)": {
+              gridColumn: "1 / span 2",
+            },
+          }}
+        >
           <FormLabel component="p">Celular</FormLabel>
           <Controller
             control={control}
@@ -301,7 +359,14 @@ export const RegisterVaccine = () => {
             )}
           />
         </Box>
-        <Box sx={{ gridColumn: "3 / -1" }}>
+        <Box
+          sx={{
+            gridColumn: "1 / -1",
+            "@media screen and (min-width: 600px)": {
+              gridColumn: "3 / -1",
+            },
+          }}
+        >
           <FormLabel component="p">Dirección</FormLabel>
           <StyledTextField
             defaultValue={citizen?.address}
@@ -364,7 +429,14 @@ export const RegisterVaccine = () => {
             )}
           />
         </Box>
-        <Box sx={{ gridColumn: "2 / span 2" }}>
+        <Box
+          sx={{
+            gridColumn: "1 / -1",
+            "@media screen and (min-width: 600px)": {
+              gridColumn: "2 / span 2",
+            },
+          }}
+        >
           <FormLabel component="p">Fecha dosis</FormLabel>
           <Controller
             control={control}
@@ -392,7 +464,14 @@ export const RegisterVaccine = () => {
             )}
           />
         </Box>
-        <Box sx={{ gridColumn: "4 / -1" }}>
+        <Box
+          sx={{
+            gridColumn: "1 / -1",
+            "@media screen and (min-width: 600px)": {
+              gridColumn: "4 / -1",
+            },
+          }}
+        >
           <FormLabel component="p">Centro de vacunación</FormLabel>
           <Controller
             control={control}

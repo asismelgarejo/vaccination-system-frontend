@@ -1,10 +1,8 @@
-
 .QueryForm {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  column-gap: 5px;
-  background-color: #EEEDF0;
-  // margin-top: 50px;
+  grid-template-columns: 1fr;
+  row-gap: 5px;
+  background-color: #eeedf0;
   &Background {
     display: flex;
     flex-direction: column;
@@ -12,14 +10,31 @@
     padding: 2em;
     background-color: white;
     & .MinsaLogo {
-      width: 200px;
+      width: 100px;
     }
     & .CarnetDeVacunacion {
-      width: 250px;
+      width: 150px;
     }
   }
   &Form {
     background-color: white;
-    padding: 1em 4em 2em
+    padding: 0;
+  }
+}
+@media screen and (min-width: 600px) {
+  .QueryForm {
+    grid-template-columns: repeat(2, 1fr);
+    column-gap: 5px;
+    &Background {
+      & .MinsaLogo {
+        width: 200px;
+      }
+      & .CarnetDeVacunacion {
+        width: 250px;
+      }
+    }
+    &Form {
+      padding: 1em 4em 2em;
+    }
   }
 }

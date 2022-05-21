@@ -12,7 +12,16 @@ interface IButtonsHeaderProps {
 
 export const ButtonsHeader: React.FC<IButtonsHeaderProps> = (props) => {
   return (
-    <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column-reverse",
+        "@media screen and (min-width: 600px)": {
+          flexDirection: "row",
+          justifyContent: "space-between",
+        },
+      }}
+    >
       {!props?.hidePrevButton && (
         <Button
           variant="outlined"
@@ -31,7 +40,13 @@ export const ButtonsHeader: React.FC<IButtonsHeaderProps> = (props) => {
         <Button
           variant="contained"
           endIcon={<ArrowForwardIcon />}
-          sx={{ marginLeft: "auto" }}
+          sx={{
+            marginBottom: "1em",
+            "@media screen and (min-width: 600px)": {
+              marginLeft: "auto",
+              marginBottom: "0",
+            },
+          }}
           onClick={() => props.setActiveStep((prev) => prev + 1)}
         >
           Ir a registrar vacuna

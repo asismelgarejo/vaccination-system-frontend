@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { CustomTable } from "../../components/CustomTable";
 import { useQuery } from "@apollo/client";
 import { GetAllVaccines } from "../../api/graphql/citizen";
-import { CircularProgress } from "@mui/material";
+import { Box, CircularProgress } from "@mui/material";
 import { IVaccineModel } from "../../api/models/general";
 
 export const Report = () => {
@@ -15,7 +15,11 @@ export const Report = () => {
     }
   }, [data]);
   return (
-    <div>
+    <Box
+      sx={{
+        maxWidth: "calc(84vw)",
+      }}
+    >
       {loading ? (
         <CircularProgress />
       ) : error ? (
@@ -23,6 +27,6 @@ export const Report = () => {
       ) : vaccines ? (
         <CustomTable vaccines={vaccines as IVaccineModel[]} />
       ) : null}
-    </div>
+    </Box>
   );
 };

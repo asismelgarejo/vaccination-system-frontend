@@ -28,12 +28,16 @@ export const VaccinationCard = () => {
         sx={{
           display: "flex",
           alignItems: "center",
+          flexDirection: "column",
           width: "100%",
           padding: ".5em",
           border: "1px solid #AEAEAE",
           borderRadius: ".4em",
           overflow: "hidden",
           boxSizing: "border-box",
+          "@media screen and (min-width: 600px)": {
+            flexDirection: "row",
+          },
         }}
       >
         <Box sx={{ padding: "0 2em" }}>
@@ -104,9 +108,13 @@ export const VaccinationCard = () => {
               <Box sx={{ paddingLeft: "1em" }}>
                 <StyledTypography>
                   <ShieldOutlinedIcon fontSize="small" />
-                  {format(new Date(vaccine.fc_dosis), "d 'de' MMMM 'del' yyyy", {
-                    locale: es,
-                  })}
+                  {format(
+                    new Date(vaccine.fc_dosis),
+                    "d 'de' MMMM 'del' yyyy",
+                    {
+                      locale: es,
+                    }
+                  )}
                 </StyledTypography>
                 <StyledTypography>
                   <MedicationOutlinedIcon fontSize="small" />

@@ -45,16 +45,22 @@ export const CustomTable: React.FC<ICustomTableProps> = (props) => {
       <Table size="small" aria-label="a dense table">
         <TableHead>
           <TableRow>
-            <TableCell>DNI</TableCell>
-            <TableCell>Apellidos y nombres</TableCell>
-            <TableCell>Edad</TableCell>
-            <TableCell>Sexo</TableCell>
-            <TableCell>Fecha de nacimiento</TableCell>
-            <TableCell>Celular</TableCell>
-            <TableCell>Dosis</TableCell>
-            <TableCell>Fecha de dosis</TableCell>
-            <TableCell>Centro de vacunación</TableCell>
-            <TableCell>Factor de riesgo</TableCell>
+            <TableCell sx={{ fontWeight: "bold" }}>DNI</TableCell>
+            <TableCell sx={{ fontWeight: "bold" }}>
+              Apellidos y nombres
+            </TableCell>
+            <TableCell sx={{ fontWeight: "bold" }}>Edad</TableCell>
+            <TableCell sx={{ fontWeight: "bold" }}>Sexo</TableCell>
+            <TableCell sx={{ fontWeight: "bold" }}>
+              Fecha de nacimiento
+            </TableCell>
+            <TableCell sx={{ fontWeight: "bold" }}>Celular</TableCell>
+            <TableCell sx={{ fontWeight: "bold" }}>Dosis</TableCell>
+            <TableCell sx={{ fontWeight: "bold" }}>Fecha de dosis</TableCell>
+            <TableCell sx={{ fontWeight: "bold" }}>
+              Centro de vacunación
+            </TableCell>
+            <TableCell sx={{ fontWeight: "bold" }}>Factor de riesgo</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>

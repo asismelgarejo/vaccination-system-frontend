@@ -18,7 +18,18 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           minHeight: "calc(100vh - 64px)",
         }}
       >
-        <Box sx={{ width: "80%", margin: "0 auto", padding: "2em 0" }}>{children}</Box>
+        <Box
+          sx={{
+            padding: "2em 1em",
+            "@media screen and (min-width: 600px)": {
+              width: "80%",
+              margin: "0 auto",
+              padding: "2em 0",
+            },
+          }}
+        >
+          {children}
+        </Box>
         <Footer />
       </Box>
     </Box>
