@@ -27,3 +27,18 @@ export const GetAllDoses = gql`
     }
   }
 `;
+
+export const GetVcdCtzsStats = gql`
+  query getVcdCtzsStats {
+    getVcdCtzsStats {
+      women {
+        minors
+        adults
+      }
+      men {
+        minors
+        adults
+      }
+    }
+  }
+`;

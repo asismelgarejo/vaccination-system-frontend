@@ -6,15 +6,21 @@ import { Box, CircularProgress, Fab } from "@mui/material";
 import { IVaccineModel } from "../../api/models/general";
 import QueryStatsIcon from "@mui/icons-material/QueryStats";
 import { StatsDialog, ObjStatsDialogRef } from "../../components/StatsDialog";
+import { Stats } from "./Stats";
+import { GetVcdCtzsStats } from "../../api/graphql/generic";
 export const Report = () => {
   const { loading, error, data } = useQuery(GetAllVaccines);
   const [vaccines, setVaccines] = useState<IVaccineModel[] | null>(null);
   const statsDialogRef = useRef<ObjStatsDialogRef>(null);
+  const { data: dataStats, loading: loadingStats } = useQuery(GetVcdCtzsStats);
   useEffect(() => {
     if (data && data.getAllVaccines) {
       setVaccines(data.getAllVaccines);
     }
   }, [data]);
+  if (loading) {
+    return <CircularProgress />;
+  }
   return (
     <Box
       sx={{
@@ -40,7 +46,9 @@ export const Report = () => {
       ) : vaccines ? (
         <CustomTable vaccines={vaccines as IVaccineModel[]} />
       ) : null}
-      <StatsDialog ref={statsDialogRef} />
+      <StatsDialog ref={statsDialogRef}>
+        {!loadingStats && <Stats dataStats={dataStats.getVcdCtzsStats} />}
+      </StatsDialog>
     </Box>
   );
 };

@@ -59,16 +59,6 @@ export const MinsaLogoAnimation = () => (
 );
 export const CarnetDeVacunacionLogoAnimation = () => (
   <motion.div
-    // animate={{
-    //   scale: [1, 1.02, 1],
-    //   y: [0, -20, 0],
-    // }}
-    // transition={{
-    //   duration: 4,
-    //   ease: "easeInOut",
-    //   delay: 0.8,
-    //   repeat: Infinity,
-    // }}
     animate={{
       opacity: [0, 1],
     }}

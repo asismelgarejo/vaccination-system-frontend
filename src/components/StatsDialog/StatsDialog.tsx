@@ -1,4 +1,8 @@
-import { Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+} from "@mui/material";
 import React from "react";
 
 export interface ObjStatsDialog {
@@ -7,6 +11,7 @@ export interface ObjStatsDialog {
 }
 interface IStatsDialogProps {
   ref: React.Ref<ObjStatsDialog>;
+  children: React.ReactNode;
 }
 export const StatsDialog: React.FC<IStatsDialogProps> = React.forwardRef(
   (props, ref) => {
@@ -24,10 +29,9 @@ export const StatsDialog: React.FC<IStatsDialogProps> = React.forwardRef(
     }));
 
     return (
-      <Dialog open={open} onClose={handleClose}>
+      <Dialog open={open} onClose={handleClose} fullWidth>
         <DialogTitle sx={{ paddingBottom: "0" }}>Estadísticas</DialogTitle>
-        <DialogContent></DialogContent>
-        <DialogActions></DialogActions>
+        <DialogContent>{props.children}</DialogContent>
       </Dialog>
     );
   }

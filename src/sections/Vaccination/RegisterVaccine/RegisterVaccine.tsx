@@ -32,6 +32,7 @@ import {
   GetAllDoses,
   GetAllRFs,
   GetAllVCs,
+  GetVcdCtzsStats,
 } from "../../../api/graphql/generic";
 import { ISelectGeneric } from "../../../toolbox/interfaces/interfaces";
 import { RegisterVaccineSchema } from "../../../api/graphql/vaccine";
@@ -97,7 +98,7 @@ export const RegisterVaccine = () => {
     execRegisterVaccine,
     { loading: loadingRegister, error: errorVaccineRegister },
   ] = useMutation(RegisterVaccineSchema, {
-    refetchQueries: [{ query: GetAllVaccines }],
+    refetchQueries: [{ query: GetAllVaccines }, { query: GetVcdCtzsStats }],
   });
   const loading = loadingRegister;
   const loader = loadingRFs || loadingVCs || loadingDoses;

@@ -7,3 +7,14 @@ export interface ISelectGeneric {
 export type TAutorization = {
   isAutorized: boolean;
 };
+
+export interface IDataStats {
+  women: {
+    minors: number;
+    adults: number;
+  };
+  men: {
+    minors: number;
+    adults: number;
+  };
+}
