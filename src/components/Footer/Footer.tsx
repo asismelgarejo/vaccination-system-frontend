@@ -1,7 +1,7 @@
 import { Divider, Box, Typography, Stack } from "@mui/material";
 import LinkedInIcon from "@mui/icons-material/LinkedIn";
 import GitHubIcon from "@mui/icons-material/GitHub";
-import FacebookIcon from "@mui/icons-material/Facebook";
+import YouTubeIcon from "@mui/icons-material/YouTube";
 import TwitterIcon from "@mui/icons-material/Twitter";
 import InstagramIcon from "@mui/icons-material/Instagram";
 export const Footer = () => {
@@ -36,13 +36,6 @@ export const Footer = () => {
             <LinkedInIcon fontSize="large" sx={{ color: "#fff" }} />
           </a>
           <a
-            href="https://www.linkedin.com/in/asis-melgarejo-5010b31a7/"
-            target="_blank"
-            rel="noreferrer"
-          >
-            <FacebookIcon fontSize="large" sx={{ color: "#fff" }} />
-          </a>
-          <a
             href="https://www.instagram.com/asismelgarejo/"
             target="_blank"
             rel="noreferrer"
@@ -62,6 +55,13 @@ export const Footer = () => {
             rel="noreferrer"
           >
             <GitHubIcon fontSize="large" sx={{ color: "#fff" }} />
+          </a>
+          <a
+            href="https://www.youtube.com/@asismelgarejo"
+            target="_blank"
+            rel="noreferrer"
+          >
+            <YouTubeIcon fontSize="large" sx={{ color: "#fff" }} />
           </a>
         </Stack>
         <br />
