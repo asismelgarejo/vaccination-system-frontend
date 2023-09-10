@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useImperativeHandle } from "react";
 import SummarizeIcon from "@mui/icons-material/Summarize";
 import VaccinesIcon from "@mui/icons-material/Vaccines";
 import { CustomTabs } from "../../components/CustomTabs";
@@ -15,13 +15,20 @@ const TABS = [
   { label: "Vacunación", icon: <VaccinesIcon /> },
   { label: "Reporte", icon: <SummarizeIcon /> },
 ];
-export const Home = () => {
+export const Home = forwardRef(({fnPadre}, ref) => {
   const { userLogged } = useUserLogged();
   const isAutorized = !!userLogged;
   const { execMe } = useRefreshContextMe();
+  // fnPadre()
   useQuery(GetAllRFs);
   useQuery(GetAllVCs);
   useQuery(GetAllDoses);
+useImperativeHandle(ref, ()=>{
+  method1(){
+    console.
+  }
+})
+
   useEffect(() => {
     execMe();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -35,4 +42,4 @@ export const Home = () => {
       />
     </MainLayout>
   );
-};
+});
